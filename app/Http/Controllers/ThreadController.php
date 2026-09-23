@@ -2,64 +2,54 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreThreadRequest;
 use App\Models\Thread;
-use Illuminate\Http\Request;
 
 class ThreadController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
-        //
+        $threads = Thread::with('user')->latest()->paginate(10);
+        return view('threads.index', compact('threads'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function show(Thread $thread): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
-        //
+        $thread->load('posts.user');
+        return view('threads.show', compact('thread'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function create(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
-        //
+        return view('threads.create');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Thread $thread)
+    public function store(StoreThreadRequest $request): \Illuminate\Http\RedirectResponse
     {
-        //
+        $request->user()->threads()->create($request->validated());
+        return redirect()->route('threads.index')->with('status', 'Тема создана!');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Thread $thread)
+    public function edit(Thread $thread): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
-        //
+        if ($thread->user_id !== auth()->id()) abort(403, 'Доступ запрещен.');
+
+        return view('threads.edit', compact('thread'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Thread $thread)
+    public function update(StoreThreadRequest $request, Thread $thread): \Illuminate\Http\RedirectResponse
     {
-        //
+        if ($thread->user_id !== auth()->id()) abort(403);
+
+        $thread->update($request->validated());
+        return redirect()->route('threads.show', $thread->id)->with('status', 'Тема обновлена!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Thread $thread)
+    public function destroy(Thread $thread): \Illuminate\Http\RedirectResponse
     {
-        //
+        if ($thread->user_id !== auth()->id()) abort(403);
+
+        $thread->delete();
+        return redirect()->route('threads.index')->with('status', 'Тема удалена!');
     }
 }

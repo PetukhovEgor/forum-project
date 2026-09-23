@@ -11,6 +11,8 @@ class Thread extends Model
 {
     use HasFactory;
 
+    public mixed $user_id;
+    public mixed $id;
     protected $fillable = ['user_id', 'title', 'body'];
 
     public function posts(): HasMany

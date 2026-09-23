@@ -2,64 +2,49 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StorePostRequest;
 use App\Models\Post;
+use App\Models\Thread;
 use Illuminate\Http\Request;
 
 class PostController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function store(StorePostRequest $request, Thread $thread)
     {
-        //
+        $thread->posts()->create([
+            'user_id' => $request->user()->id,
+            'body'    => $request->validated()['body'],
+        ]);
+
+        return redirect()->route('threads.show', $thread->id)
+            ->with('status', 'Комментарий добавлен!');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Post $post)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Post $post)
     {
-        //
+        abort_if($post->user_id !== auth()->id(), 403, 'Доступ запрещён.');
+
+        return view('posts.edit', compact('post'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Post $post)
+    public function update(StorePostRequest $request, Post $post)
     {
-        //
+        abort_if($post->user_id !== auth()->id(), 403);
+
+        $post->update($request->validated());
+
+        return redirect()->route('threads.show', $post->thread_id)
+            ->with('status', 'Комментарий обновлён!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Post $post)
     {
-        //
+        abort_if($post->user_id !== auth()->id(), 403);
+
+        $threadId = $post->thread_id;
+        $post->delete();
+
+        return redirect()->route('threads.show', $threadId)
+            ->with('status', 'Комментарий удалён!');
     }
 }
