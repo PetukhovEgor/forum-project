@@ -26,8 +26,26 @@ class ThreadController extends Controller
 
     public function store(StoreThreadRequest $request): \Illuminate\Http\RedirectResponse
     {
-        $request->user()->threads()->create($request->validated());
-        return redirect()->route('threads.index')->with('status', 'Тема создана!');
+        $validated = $request->validate([
+            'title' => 'required|string|min:5|max:100',
+            'body'  => 'required|string|min:10',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+        ]);
+
+        $imagePath = null;
+
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('threads', 'public');
+        }
+
+        $request->user()->threads()->create([
+            'title'      => $validated['title'],
+            'body'       => $validated['body'],
+            'image_path' => $imagePath,
+        ]);
+
+        return redirect()->route('threads.index')
+            ->with('status', 'Тема с картинкой создана!');
     }
 
     public function edit(Thread $thread): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View

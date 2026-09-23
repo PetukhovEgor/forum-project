@@ -101,3 +101,42 @@
         </div>
     </div>
 </x-app-layout>
+<form action="{{ route('posts.update', $post->id) }}"
+      method="POST" enctype="multipart/form-data" class="p-6">
+    @csrf
+    @method('PATCH')
+
+    <textarea name="body" class="w-full mb-4 border rounded p-2">
+        {{ old('body', $post->body) }}
+    </textarea>
+    @error('body')
+    <span class="text-red-500 text-sm">{{ $message }}</span>
+    @enderror
+
+    @if($post->image_path)
+        <div class="mb-4">
+            <p class="text-sm text-gray-500 mb-1">Текущая картинка:</p>
+            <img src="{{ asset('storage/' . $post->image_path) }}"
+                 alt="Картинка" class="max-w-xs h-auto rounded shadow-sm">
+        </div>
+    @endif
+
+    <div class="mb-4">
+        <label class="block text-gray-600 text-sm mb-1">
+            Заменить картинку (необязательно)
+        </label>
+        <input type="file" name="image" class="w-full">
+        @error('image')
+        <span class="text-red-500 text-sm">{{ $message }}</span>
+        @enderror
+    </div>
+
+    <div class="flex gap-4">
+        <button type="submit"
+                class="bg-yellow-500 text-white px-4 py-2 rounded">
+            Сохранить
+        </button>
+        <a href="{{ route('threads.show', $post->thread_id) }}"
+           class="text-gray-500 px-4 py-2">Отмена</a>
+    </div>
+</form>

@@ -11,9 +11,18 @@ class PostController extends Controller
 {
     public function store(StorePostRequest $request, Thread $thread)
     {
+        $validated = $request->validated();
+
+        $imagePath = null;
+
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('posts', 'public');
+        }
+
         $thread->posts()->create([
-            'user_id' => $request->user()->id,
-            'body'    => $request->validated()['body'],
+            'user_id'    => $request->user()->id,
+            'body'       => $validated['body'],
+            'image_path' => $imagePath,
         ]);
 
         return redirect()->route('threads.show', $thread->id)
@@ -31,7 +40,17 @@ class PostController extends Controller
     {
         abort_if($post->user_id !== auth()->id(), 403);
 
-        $post->update($request->validated());
+        $validated = $request->validated();
+
+        if ($request->hasFile('image')) {
+            if ($post->image_path) {
+                Storage::disk('public')->delete($post->image_path);
+            }
+            $post->image_path = $request->file('image')->store('posts', 'public');
+        }
+
+        $post->body = $validated['body'];
+        $post->save();
 
         return redirect()->route('threads.show', $post->thread_id)
             ->with('status', 'Комментарий обновлён!');

@@ -14,6 +14,13 @@
             <p>{{ $thread->body }}</p>
             <small>Автор: {{ $thread->user->name }}</small>
         </li>
+        @if($thread->image_path)
+            <div class="mb-3">
+                <img src="{{ asset('storage/' . $thread->image_path) }}"
+                     alt="Обложка"
+                     class="w-48 h-auto rounded shadow-sm">
+            </div>
+        @endif
     @endforeach
 </ul>
 <div>

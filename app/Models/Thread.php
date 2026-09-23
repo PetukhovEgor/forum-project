@@ -13,7 +13,8 @@ class Thread extends Model
 
     public mixed $user_id;
     public mixed $id;
-    protected $fillable = ['user_id', 'title', 'body'];
+    protected $fillable = ['user_id', 'title', 'body', 'image_path']
+;
 
     public function posts(): HasMany
     {
