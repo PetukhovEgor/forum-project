@@ -169,6 +169,25 @@
                     </div>
                 </div>
             @endforeach
+            @foreach ($thread->posts as $post)
+
+                <div class="mt-2 flex items-center gap-2">
+                    <span class="text-gray-600 font-bold">Лайков: {{ $post->likes_count }}</span>
+
+                    @auth
+                        <form action="{{ route('posts.like', $post->id) }}" method="POST">
+                            @csrf
+                            @if(auth()->user()->likedPosts->contains($post->id))
+                                <button type="submit" class="text-red-500 font-bold">Не нравится</button>
+                            @else
+                                <button type="submit" class="text-blue-500">Нравится</button>
+                            @endif
+                        </form>
+                    @endauth
+                </div>
+            @endforeach
+
+
         </div>
     </div>
 </x-app-layout>

@@ -66,4 +66,10 @@ class PostController extends Controller
         return redirect()->route('threads.show', $threadId)
             ->with('status', 'Комментарий удалён!');
     }
+    public function like(Post $post): \Illuminate\Http\RedirectResponse
+    {
+        auth()->user()->likedPosts()->toggle($post->id);
+
+        return back();
+    }
 }

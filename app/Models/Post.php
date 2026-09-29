@@ -22,4 +22,9 @@ class Post extends Model
     {
         return $this->belongsTo(Thread::class);
     }
+    // Пользователи, которые лайкнули этот пост
+    public function likes(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(User::class);
+    }
 }

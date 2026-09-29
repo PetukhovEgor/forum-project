@@ -4,18 +4,27 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreThreadRequest;
 use App\Models\Thread;
+use Illuminate\Routing\Controller;
 
 class ThreadController extends Controller
 {
     public function index(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
-        $threads = Thread::with('user')->latest()->paginate(10);
+        $threads = Thread::with('user')
+            ->withCount('likes')
+            ->withExists(['likes as liked_by_me' => function ($query) {
+                $query->where('user_id', auth()->id());
+            }])
+            ->latest()
+            ->paginate(10);
+
         return view('threads.index', compact('threads'));
     }
 
     public function show(Thread $thread): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
-        $thread->load('posts.user');
+        $thread->load(['posts.user'])->loadCount(['likes', 'posts.likes']);
+
         return view('threads.show', compact('thread'));
     }
 
@@ -69,5 +78,11 @@ class ThreadController extends Controller
 
         $thread->delete();
         return redirect()->route('threads.index')->with('status', 'Тема удалена!');
+    }
+    public function like(Thread $thread): \Illuminate\Http\RedirectResponse
+    {
+        auth()->user()->likedThreads()->toggle($thread->id);
+
+        return back();
     }
 }

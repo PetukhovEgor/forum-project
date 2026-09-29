@@ -33,12 +33,12 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
-    public function threads()
+    public function threads(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Thread::class);
     }
 
-    public function posts()
+    public function posts(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Post::class);
     }
@@ -47,4 +47,17 @@ class User extends Authenticatable
         'email',
         'password',
     ];
+    public function likedThreads(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Thread::class);
+    }
+    public function likes(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(User::class);
+    }
+    // Посты, которые лайкнул этот пользователь
+    public function likedPosts(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Post::class);
+    }
 }

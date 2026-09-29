@@ -35,3 +35,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/users/{user}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 });
+
+Route::post('/threads/{thread}/like', [ThreadController::class, 'like'])->name('threads.like')->middleware('auth');
+
+Route::post('/posts/{post}/like', [PostController::class, 'like'])
+    ->name('posts.like')->middleware('auth');

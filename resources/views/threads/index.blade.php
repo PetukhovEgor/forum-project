@@ -21,6 +21,20 @@
                      class="w-48 h-auto rounded shadow-sm">
             </div>
         @endif
+        <div class="mt-2 flex items-center gap-2">
+            <span class="text-gray-600 font-bold">Лайков: {{ $thread->likes_count }}</span>
+
+            @auth
+                <form action="{{ route('threads.like', $thread->id) }}" method="POST">
+                    @csrf
+                    @if(auth()->user()->likedThreads->contains($thread->id))
+                        <button type="submit" class="text-red-500 font-bold">Не нравится</button>
+                    @else
+                        <button type="submit" class="text-blue-500">Нравится</button>
+                    @endif
+                </form>
+            @endauth
+        </div>
     @endforeach
 </ul>
 <div>
